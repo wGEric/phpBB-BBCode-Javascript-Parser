@@ -1,0 +1,298 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<link rel="stylesheet" href="qunit/qunit.css" type="text/css" media="screen" />
+</head>
+<body>
+	<h1 id="qunit-header">Javascript phpBB BBCode Parser</h1>
+	<h2 id="qunit-banner"></h2>
+	<div id="qunit-testrunner-toolbar"></div>
+	<h2 id="qunit-userAgent"></h2>
+	<ol id="qunit-tests"></ol>
+	<div id="qunit-fixture">test markup, will be hidden</div>
+
+	<script type="text/javascript" src="bbcodeParser.js"></script>
+	<script type="text/javascript" src="qunit/qunit.js"></script>
+	<script type="text/javascript">
+		function resetBBCodeParser() {
+			bbcodeParser.bbcode_matches = [];
+			bbcodeParser.html_tpls = [];
+			bbcodeParser.html_matches = [];
+			bbcodeParser.bbcode_tpls = [];
+		}
+
+		/**
+		 * {TEXT}
+		 */
+		module('{TEXT}');
+
+		test('BBCode to HTML', function() {
+			expect(1);
+
+			bbcodeParser.addBBCode('[text]{TEXT}[/text]', '<span>{TEXT}</span>');
+
+			equal(bbcodeParser.bbcodeToHtml('[text]#testing @some% text*!123[/text]'), '<span>#testing @some% text*!123</span>', 'One field');
+
+			resetBBCodeParser();
+		});
+
+		test('HTML to BBCode', function() {
+			expect(1);
+
+			bbcodeParser.addBBCode('[text]{TEXT}[/text]', '<span>{TEXT}</span>');
+
+			equal(bbcodeParser.htmlToBBCode('<span>#testing @some% text*!123</span>'), '[text]#testing @some% text*!123[/text]', 'One field');
+
+			resetBBCodeParser();
+		});
+
+		/**
+		 * {SIMPLETEXT}
+		 */
+		module('{SIMPLETEXT}');
+
+		test('BBCode to HTML', function() {
+			expect(2);
+
+			bbcodeParser.addBBCode('[simpletext]{SIMPLETEXT}[/simpletext]', '<span>{SIMPLETEXT}</span>');
+
+			equal(bbcodeParser.bbcodeToHtml('[simpletext]testing some text.123[/simpletext]'), '<span>testing some text.123</span>', 'One field');
+			equal(bbcodeParser.bbcodeToHtml('[simpletext]testing some text.123@[/simpletext]'), '[simpletext]testing some text.123@[/simpletext]', 'One field with special characters');
+
+			resetBBCodeParser();
+		});
+
+		test('HTML to BBCode', function() {
+			expect(2);
+
+			bbcodeParser.addBBCode('[simpletext]{SIMPLETEXT}[/simpletext]', '<span>{SIMPLETEXT}</span>');
+
+			equal(bbcodeParser.htmlToBBCode('<span>testing some text.123</span>'), '[simpletext]testing some text.123[/simpletext]', 'One field');
+			equal(bbcodeParser.htmlToBBCode('<span>testing some text.123@</span>'), '<span>testing some text.123@</span>', 'One field with special characters');
+
+			resetBBCodeParser();
+		});
+
+		/**
+		 * {INTTEXT}
+		 */
+		module('{INTTEXT}');
+
+		test('BBCode to HTML', function() {
+			expect(2);
+
+			bbcodeParser.addBBCode('[inttext]{INTTEXT}[/inttext]', '<span>{INTTEXT}</span>');
+
+			equal(bbcodeParser.bbcodeToHtml('[inttext]testing some text.123[/inttext]'), '<span>testing some text.123</span>', 'One field');
+			equal(bbcodeParser.bbcodeToHtml('[inttext]testing some text.123@[/inttext]'), '[inttext]testing some text.123@[/inttext]', 'One field with special characters. Shouldn\'t convert anything.');
+
+			resetBBCodeParser();
+		});
+
+		test('HTML to BBCode', function() {
+			expect(2);
+
+			bbcodeParser.addBBCode('[inttext]{INTTEXT}[/inttext]', '<span>{INTTEXT}</span>');
+
+			equal(bbcodeParser.htmlToBBCode('<span>testing some text.123</span>'), '[inttext]testing some text.123[/inttext]', 'One field');
+			equal(bbcodeParser.htmlToBBCode('<span>testing some text.123@</span>'), '<span>testing some text.123@</span>', 'One field with special characters. Shouldn\'t convert anything.');
+
+			resetBBCodeParser();
+		});
+
+		/**
+		 * {IDENTIFIER}
+		 */
+		module('{IDENTIFIER}');
+
+		test('BBCode to HTML', function() {
+			expect(2);
+
+			bbcodeParser.addBBCode('[identifier]{IDENTIFIER}[/identifier]', '<span>{IDENTIFIER}</span>');
+
+			equal(bbcodeParser.bbcodeToHtml('[identifier]abcd1234[/identifier]'), '<span>abcd1234</span>', 'One field');
+			equal(bbcodeParser.bbcodeToHtml('[identifier]abcd1234 ![/identifier]'), '[identifier]abcd1234 ![/identifier]', 'One field with special characters. Shouldn\'t convert anything.');
+
+			resetBBCodeParser();
+		});
+
+		test('HTML to BBCode', function() {
+			expect(2);
+
+			bbcodeParser.addBBCode('[identifier]{IDENTIFIER}[/identifier]', '<span>{IDENTIFIER}</span>');
+
+			equal(bbcodeParser.htmlToBBCode('<span>abcd1234</span>'), '[identifier]abcd1234[/identifier]', 'One field');
+			equal(bbcodeParser.htmlToBBCode('<span>abcd1234 !</span>'), '<span>abcd1234 !</span>', 'One field with special characters. Shouldn\'t convert anything.');
+
+			resetBBCodeParser();
+		});
+
+		/**
+		 * {COLOR}
+		 */
+		module('{COLOR}');
+
+		test('BBCode to HTML', function() {
+			expect(3);
+
+			bbcodeParser.addBBCode('[color]{COLOR}[/color]', '<span>{COLOR}</span>');
+
+			equal(bbcodeParser.bbcodeToHtml('[color]red[/color]'), '<span>red</span>', 'One field, text name');
+			equal(bbcodeParser.bbcodeToHtml('[color]#FF0000[/color]'), '<span>#FF0000</span>', 'One field, hex number');
+			equal(bbcodeParser.bbcodeToHtml('[color]#GFFFFF[/color]'), '[color]#GFFFFF[/color]', 'One field with invalid hex. Shouldn\'t convert anything.');
+
+			resetBBCodeParser();
+		});
+
+		test('HTML to BBCode', function() {
+			expect(3);
+
+			bbcodeParser.addBBCode('[color]{COLOR}[/color]', '<span>{COLOR}</span>');
+
+			equal(bbcodeParser.htmlToBBCode('<span>red</span>'), '[color]red[/color]', 'One field, text name');
+			equal(bbcodeParser.htmlToBBCode('<span>#FF0000</span>'), '[color]#FF0000[/color]', 'One field, hex number');
+			equal(bbcodeParser.htmlToBBCode('[color]#GFFFFF[/color]'), '[color]#GFFFFF[/color]', 'One field with invalid hex. Shouldn\'t convert anything.');
+
+			resetBBCodeParser();
+		});
+
+		/**
+		 * {NUMBER}
+		 */
+		module('{NUMBER}');
+
+		test('BBCode to HTML', function() {
+			expect(2);
+
+			bbcodeParser.addBBCode('[number]{NUMBER}[/number]', '<span>{NUMBER}</span>');
+
+			equal(bbcodeParser.bbcodeToHtml('[number]123456[/number]'), '<span>123456</span>', 'One field');
+			equal(bbcodeParser.bbcodeToHtml('[number]abc123[/number]'), '[number]abc123[/number]', 'One field not a number. Shouldn\'t convert anything.');
+
+			resetBBCodeParser();
+		});
+
+		test('HTML to BBCode', function() {
+			expect(2);
+
+			bbcodeParser.addBBCode('[number]{NUMBER}[/number]', '<span>{NUMBER}</span>');
+
+			equal(bbcodeParser.htmlToBBCode('<span>123456</span>'), '[number]123456[/number]', 'One field');
+			equal(bbcodeParser.htmlToBBCode('[number]abc123[/number]'), '[number]abc123[/number]', 'One field not a number. Shouldn\'t convert anything.');
+
+			resetBBCodeParser();
+		});
+
+		/**
+		 * {URL}
+		 */
+		module('{URL}');
+
+		test('BBCode to HTML', function() {
+			expect(10);
+
+			bbcodeParser.addBBCode('[url]{URL}[/url]', '<span>{URL}</span>');
+
+			equal(bbcodeParser.bbcodeToHtml('[url]http://www.google.com[/url]'), '<span>http://www.google.com</span>', 'One field');
+			equal(bbcodeParser.bbcodeToHtml('[url]http://google.com[/url]'), '<span>http://google.com</span>', 'One field');
+			equal(bbcodeParser.bbcodeToHtml('[url]http://www.google.com/test/path.html[/url]'), '<span>http://www.google.com/test/path.html</span>', 'One field');
+			equal(bbcodeParser.bbcodeToHtml('[url]http://www.google.com/?var=one&two=three[/url]'), '<span>http://www.google.com/?var=one&two=three</span>', 'One field');
+			equal(bbcodeParser.bbcodeToHtml('[url]http://www.google.com/#testhash[/url]'), '<span>http://www.google.com/#testhash</span>', 'One field');
+			equal(bbcodeParser.bbcodeToHtml('[url]http://www.google.com/?var=one&two=three#hash[/url]'), '<span>http://www.google.com/?var=one&two=three#hash</span>', 'One field');
+			equal(bbcodeParser.bbcodeToHtml('[url]ftp://google.com[/url]'), '<span>ftp://google.com</span>', 'One field');
+			equal(bbcodeParser.bbcodeToHtml('[url]ftp://user@google.com/path[/url]'), '<span>ftp://user@google.com/path</span>', 'One field');
+			equal(bbcodeParser.bbcodeToHtml('[url]ftp://user:password@google.com/path[/url]'), '<span>ftp://user:password@google.com/path</span>', 'One field');
+			equal(bbcodeParser.bbcodeToHtml('[url]abc123[/url]'), '[url]abc123[/url]', 'One field not a url. Shouldn\'t convert anything.');
+
+			resetBBCodeParser();
+		});
+
+		test('HTML to BBCode', function() {
+			expect(10);
+
+			bbcodeParser.addBBCode('[url]{URL}[/url]', '<span>{URL}</span>');
+
+			equal(bbcodeParser.htmlToBBCode('<span>http://www.google.com</span>'), '[url]http://www.google.com[/url]', 'One field');
+			equal(bbcodeParser.htmlToBBCode('<span>http://google.com</span>'), '[url]http://google.com[/url]', 'One field');
+			equal(bbcodeParser.htmlToBBCode('<span>http://www.google.com/test/path.html</span>'), '[url]http://www.google.com/test/path.html[/url]', 'One field');
+			equal(bbcodeParser.htmlToBBCode('<span>http://www.google.com/?var=one&two=three</span>'), '[url]http://www.google.com/?var=one&two=three[/url]', 'One field');
+			equal(bbcodeParser.htmlToBBCode('<span>http://www.google.com/#testhash</span>', 'One field'), '[url]http://www.google.com/#testhash[/url]');
+			equal(bbcodeParser.htmlToBBCode('<span>http://www.google.com/?var=one&two=three#hash</span>'), '[url]http://www.google.com/?var=one&two=three#hash[/url]', 'One field');
+			equal(bbcodeParser.htmlToBBCode('<span>ftp://google.com</span>'), '[url]ftp://google.com[/url]', 'One field');
+			equal(bbcodeParser.htmlToBBCode('<span>ftp://user@google.com/path</span>'), '[url]ftp://user@google.com/path[/url]', 'One field');
+			equal(bbcodeParser.htmlToBBCode('<span>ftp://user:password@google.com/path</span>'), '[url]ftp://user:password@google.com/path[/url]', 'One field');
+			equal(bbcodeParser.htmlToBBCode('[url]abc123[/url]'), '[url]abc123[/url]', 'One field not a url. Shouldn\'t convert anything.');
+
+			resetBBCodeParser();
+		});
+
+		/**
+		 * {LOCAL_URL}
+		 */
+		module('{LOCAL_URL}');
+
+		/**
+		 * {EMAIL}
+		 */
+		module('{EMAIL}');
+
+		/**
+		 * General tests such as nesting bbcode and more real life use cases
+		 */
+		module('General');
+
+		test('BBCode to HTML', function() {
+			expect(4);
+
+			bbcodeParser.addBBCode('[b]{TEXT}[/b]', '<strong>{TEXT}</strong>');
+			bbcodeParser.addBBCode('[i]{TEXT}[/i]', '<em>{TEXT}</em>');
+			bbcodeParser.addBBCode('[highlight={COLOR}]{TEXT}[/highlight]', '<span style="background-color: {COLOR}">{TEXT}</span>');
+			bbcodeParser.addBBCode('[url]{URL}[/url]', '<a href="{URL}">{URL}</a>');
+
+			equal(bbcodeParser.bbcodeToHtml('[b]This[/b] [i]one[/i] has [highlight=#000000]multiple[/highlight] bbcodes in it. [url]http://www.google.com[/url]'), '<strong>This</strong> <em>one</em> has <span style="background-color: #000000">multiple</span> bbcodes in it. <a href="http://www.google.com">http://www.google.com</a>', 'Multiple bbcodes');
+			equal(bbcodeParser.bbcodeToHtml('[b]This sentence is bold and [i]italic[/i][/b]'), '<strong>This sentence is bold and <em>italic</em></strong>', 'Nested BBCode');
+
+			resetBBCodeParser();
+
+			bbcodeParser.addBBCode('[text]{TEXT}[/text]', '<span>{TEXT} {TEXT}</span>');
+
+			equal(bbcodeParser.bbcodeToHtml('[text]testing some text!123[/text]'), '<span>testing some text!123 testing some text!123</span>', 'One field in HTML twice');
+
+			resetBBCodeParser();
+
+			bbcodeParser.addBBCode('[text]{TEXT1} :: {TEXT2}[/text]', '<span>{TEXT1} :: {TEXT2}</span>');
+
+			equal(bbcodeParser.bbcodeToHtml('[text]testing some text!123 :: this is some more text[/text]'), '<span>testing some text!123 :: this is some more text</span>', 'Two fields');
+
+			resetBBCodeParser();
+		});
+
+		test('HTML to BBCode', function() {
+			expect(4);
+
+			bbcodeParser.addBBCode('[b]{TEXT}[/b]', '<strong>{TEXT}</strong>');
+			bbcodeParser.addBBCode('[i]{TEXT}[/i]', '<em>{TEXT}</em>');
+			bbcodeParser.addBBCode('[highlight={COLOR}]{TEXT}[/highlight]', '<span style="background-color: {COLOR}">{TEXT}</span>');
+			bbcodeParser.addBBCode('[url]{URL}[/url]', '<a href="{URL}">{URL}</a>');
+
+			equal(bbcodeParser.htmlToBBCode('<strong>This</strong> <em>one</em> has <span style="background-color: #000000">multiple</span> bbcodes in it. <a href="http://www.google.com">http://www.google.com</a>'), '[b]This[/b] [i]one[/i] has [highlight=#000000]multiple[/highlight] bbcodes in it. [url]http://www.google.com[/url]', 'Multiple bbcodes');
+			equal(bbcodeParser.htmlToBBCode('<strong>This sentence is bold and <em>italic</em></strong>'), '[b]This sentence is bold and [i]italic[/i][/b]', 'Nested BBCode');
+
+			resetBBCodeParser();
+
+			bbcodeParser.addBBCode('[text]{TEXT}[/text]', '<span>{TEXT} {TEXT}</span>');
+
+			equal(bbcodeParser.htmlToBBCode('<span>testing some text!123 testing some text!123</span>'), '[text]testing some text!123[/text]', 'One field in HTML twice');
+
+			resetBBCodeParser();
+
+			bbcodeParser.addBBCode('[text]{TEXT1} :: {TEXT2}[/text]', '<span>{TEXT1} :: {TEXT2}</span>');
+
+			equal(bbcodeParser.htmlToBBCode('<span>testing some text!123 :: this is some more text</span>'), '[text]testing some text!123 :: this is some more text[/text]', 'Two fields');
+
+			resetBBCodeParser();
+		});
+	</script>
+</body>
+</html>
