@@ -243,7 +243,7 @@
 		module('General');
 
 		test('BBCode to HTML', function() {
-			expect(4);
+			expect(7);
 
 			bbcodeParser.addBBCode('[b]{TEXT}[/b]', '<strong>{TEXT}</strong>');
 			bbcodeParser.addBBCode('[i]{TEXT}[/i]', '<em>{TEXT}</em>');
@@ -266,10 +266,24 @@
 			equal(bbcodeParser.bbcodeToHtml('[text]testing some text!123 :: this is some more text[/text]'), '<span>testing some text!123 :: this is some more text</span>', 'Two fields');
 
 			resetBBCodeParser();
+
+			bbcodeParser.addBBCode('[quote="{TEXT1}"]{TEXT2}[/quote]', '<div class="quote"><cite>{TEXT1}</cite><p>{TEXT2}</p></div>');
+			bbcodeParser.addBBCode('[url={URL}]{TEXT}[/url]', '<a href="{URL}">{TEXT}</a>');
+
+			equal(bbcodeParser.bbcodeToHtml('[quote="Author"]My message[/quote]'), '<div class="quote"><cite>Author</cite><p>My message</p></div>', 'Quote BBCode');
+			equal(bbcodeParser.bbcodeToHtml('[quote="[url=http://www.google.com]Author[/url]"]My message[/quote]'), '<div class="quote"><cite><a href="http://www.google.com">Author</a></cite><p>My message</p></div>', 'Quote BBCode with URL for author');
+
+			resetBBCodeParser();
+
+			bbcodeParser.addBBCode('[quote={TEXT1}]{TEXT2}[/quote]', '<div class="quote"><cite>{TEXT1}</cite><p>{TEXT2}</p></div>');
+
+			equal(bbcodeParser.bbcodeToHtml('[quote=Author]My message[/quote]'), '<div class="quote"><cite>Author</cite><p>My message</p></div>', 'Quote BBCode');
+
+			resetBBCodeParser();
 		});
 
 		test('HTML to BBCode', function() {
-			expect(4);
+			expect(7);
 
 			bbcodeParser.addBBCode('[b]{TEXT}[/b]', '<strong>{TEXT}</strong>');
 			bbcodeParser.addBBCode('[i]{TEXT}[/i]', '<em>{TEXT}</em>');
@@ -290,6 +304,20 @@
 			bbcodeParser.addBBCode('[text]{TEXT1} :: {TEXT2}[/text]', '<span>{TEXT1} :: {TEXT2}</span>');
 
 			equal(bbcodeParser.htmlToBBCode('<span>testing some text!123 :: this is some more text</span>'), '[text]testing some text!123 :: this is some more text[/text]', 'Two fields');
+
+			resetBBCodeParser();
+
+			bbcodeParser.addBBCode('[quote="{TEXT1}"]{TEXT2}[/quote]', '<div class="quote"><cite>{TEXT1}</cite><p>{TEXT2}</p></div>');
+			bbcodeParser.addBBCode('[url={URL}]{TEXT}[/url]', '<a href="{URL}">{TEXT}</a>');
+
+			equal(bbcodeParser.htmlToBBCode('<div class="quote"><cite>Author</cite><p>My message</p></div>'), '[quote="Author"]My message[/quote]', 'Quote BBCode');
+			equal(bbcodeParser.htmlToBBCode('<div class="quote"><cite><a href="http://www.google.com">Author</a></cite><p>My message</p></div>'), '[quote="[url=http://www.google.com]Author[/url]"]My message[/quote]', 'Quote BBCode with URL for author');
+
+			resetBBCodeParser();
+
+			bbcodeParser.addBBCode('[quote={TEXT1}]{TEXT2}[/quote]', '<div class="quote"><cite>{TEXT1}</cite><p>{TEXT2}</p></div>');
+
+			equal(bbcodeParser.htmlToBBCode('<div class="quote"><cite>Author</cite><p>My message</p></div>'), '[quote=Author]My message[/quote]', 'Quote BBCode');
 
 			resetBBCodeParser();
 		});
